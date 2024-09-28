@@ -8,7 +8,7 @@ MONOMER_LIST = ['BOBO','BSeBSe','BOBS','BOBSe','BSBSe']
 ############################汎用関数###########################
 def get_monomer_xyza(monomer_name,Ta,Tb,Tc,A2,A3):
     T_vec = np.array([Ta,Tb,Tc])
-    df_mono=pd.read_csv('~/Working/polyacene/monomer/{}.csv'.format(monomer_name))
+    df_mono=pd.read_csv('~/Working/BXBX/monomer/{}.csv'.format(monomer_name))
     atoms_array_xyzR=df_mono[['X','Y','Z','atom']].values
     
     ex = np.array([1.,0.,0.]); ey = np.array([0.,1.,0.]); ez = np.array([0.,0.,1.])
@@ -175,7 +175,7 @@ def exec_gjf(auto_dir, monomer_name, params_dict, machine_type,isInterlayer,isTe
     
     xyzfile_name = make_xyz(monomer_name, params_dict)
     xyz_path = os.path.join(xyz_dir,xyzfile_name)
-    xyz_list = make_xyzfile(monomer_name,params_dict,isInterlayer=False)
+    xyz_list = make_xyzfile(monomer_name,params_dict)
     with open(xyz_path,'w') as f:
         f.writelines(xyz_list)
     
