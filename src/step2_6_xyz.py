@@ -19,7 +19,7 @@ def main_process(args):
     os.makedirs(auto_dir, exist_ok=True)
     os.makedirs(os.path.join(auto_dir,'gaussian'), exist_ok=True)
     os.makedirs(os.path.join(auto_dir,'gaussview'), exist_ok=True)
-    auto_csv_path = os.path.join(auto_dir,'step1.csv')
+    auto_csv_path = os.path.join(auto_dir,'step2_twist.csv')
     if not os.path.exists(auto_csv_path):        
         df_E = pd.DataFrame(columns = ['a','b','theta','A2','Rt','E','E_p','E_t1','E_t3','machine_type','status','file_name'])##いじる
         df_E.to_csv(auto_csv_path,index=False)##step3を二段階でやる場合二段階目ではinitをやらないので念のためmainにも組み込んでおく
@@ -32,7 +32,7 @@ def main_process(args):
         time.sleep(1)
 
 def listen(auto_dir,monomer_name,num_nodes,num_m2,isTest):##args自体を引数に取るか中身をばらして取るかの違い
-    auto_csv = os.path.join(auto_dir,'step1.csv')
+    auto_csv = os.path.join(auto_dir,'step2_twist.csv')
     df_E = pd.read_csv(auto_csv)
     df_queue = df_E.loc[df_E['status']=='InProgress',['machine_type','file_name']]
     machine_type_list = df_queue['machine_type'].values.tolist()
@@ -67,14 +67,14 @@ def listen(auto_dir,monomer_name,num_nodes,num_m2,isTest):##args自体を引数�
                 df_E=df_E.append(df_newline,ignore_index=True)
                 df_E.to_csv(auto_csv,index=False)
     
-    init_params_csv=os.path.join(auto_dir, 'step1_init_params.csv')
+    init_params_csv=os.path.join(auto_dir, 'step2_twist_init_params.csv')
     df_init_params = pd.read_csv(init_params_csv)
     df_init_params_done = filter_df(df_init_params,{'status':'Done'})
     isOver = True if len(df_init_params_done)==len(df_init_params) else False
     return isOver
 
 def check_calc_status(auto_dir,params_dict):
-    df_E= pd.read_csv(os.path.join(auto_dir,'step1.csv'))
+    df_E= pd.read_csv(os.path.join(auto_dir,'step2_twist.csv'))
     if len(df_E)==0:
         return False
     df_E_filtered = filter_df(df_E, params_dict)
@@ -88,11 +88,11 @@ def check_calc_status(auto_dir,params_dict):
 def get_params_dict(auto_dir, num_nodes):
     """
     前提:
-        step1_init_params.csvとstep1.csvがauto_dirの下にある
+        step2_twist_init_params.csvとstep2_twist.csvがauto_dirの下にある
     """
-    init_params_csv=os.path.join(auto_dir, 'step1_init_params.csv')
+    init_params_csv=os.path.join(auto_dir, 'step2_twist_init_params.csv')
     df_init_params = pd.read_csv(init_params_csv)
-    df_cur = pd.read_csv(os.path.join(auto_dir, 'step1.csv'))
+    df_cur = pd.read_csv(os.path.join(auto_dir, 'step2_twist.csv'))
     df_init_params_inprogress = df_init_params[df_init_params['status']=='InProgress']
     fixed_param_keys = ['theta','a','b']
     opt_param_keys = ['A2','Rt']
