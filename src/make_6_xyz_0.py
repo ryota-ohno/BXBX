@@ -85,18 +85,18 @@ def get_one_exe(file_name,machine_type):
 ##################gaussview##################
 def make_xyzfile(monomer_name,params_dict):
     a_ = params_dict['a']; b_ = params_dict['b']
-    A2 = params_dict.get('A2',0.0); A3 = params_dict['theta']
+    Rt = params_dict.get('Rt',0.0); A2 = params_dict.get('A2',0.0); A3 = params_dict['theta']
     
     monomer_array_i = get_monomer_xyza(monomer_name,0,0,0,A2,A3)
     
-    monomer_array_p1 = get_monomer_xyza(monomer_name,0,b_,0,A2,A3)##1,2がb方向
-    monomer_array_p2 = get_monomer_xyza(monomer_name,0,-b_,0,A2,A3)##1,2がb方向
+    monomer_array_p1 = get_monomer_xyza(monomer_name,0,b_,2*Rt,A2,A3)##1,2がb方向
+    monomer_array_p2 = get_monomer_xyza(monomer_name,0,-b_,-2*Rt,A2,A3)##1,2がb方向
     monomer_array_p3 = get_monomer_xyza(monomer_name,a_,0,0,A2,A3)##3,4がa方向
     monomer_array_p4 = get_monomer_xyza(monomer_name,-a_,0,0,A2,A3)##3,4がa方向
-    monomer_array_t1 = get_monomer_xyza(monomer_name,a_/2,b_/2,0,A2,-A3)
-    monomer_array_t2 = get_monomer_xyza(monomer_name,a_/2,-b_/2,0,A2,-A3)
-    monomer_array_t3 = get_monomer_xyza(monomer_name,-a_/2,-b_/2,0,A2,-A3)
-    monomer_array_t4 = get_monomer_xyza(monomer_name,-a_/2,b_/2,0,A2,-A3)
+    monomer_array_t1 = get_monomer_xyza(monomer_name,a_/2,b_/2,Rt,A2,-A3)
+    monomer_array_t2 = get_monomer_xyza(monomer_name,a_/2,-b_/2,-Rt,A2,-A3)
+    monomer_array_t3 = get_monomer_xyza(monomer_name,-a_/2,-b_/2,-Rt,A2,-A3)
+    monomer_array_t4 = get_monomer_xyza(monomer_name,-a_/2,b_/2,Rt,A2,-A3)
     xyz_list=['400 \n','polyacene9 \n']##4分子のxyzファイルを作成
     monomers_array_4 = np.concatenate([monomer_array_i,monomer_array_p1,monomer_array_p3,monomer_array_p2,monomer_array_p4,monomer_array_t1,monomer_array_t2,monomer_array_t3,monomer_array_t4],axis=0)
     
@@ -120,17 +120,17 @@ def make_xyz(monomer_name,params_dict):
 
 def make_gjf_xyz(auto_dir,monomer_name,params_dict,isInterlayer):
     a_ = params_dict['a']; b_ = params_dict['b']; c = np.array([params_dict.get('cx',0.0),params_dict.get('cy',0.0),params_dict.get('cz',0.0)])
-    A2 = params_dict.get('A2',0.0); A3 = params_dict['theta']
+    Rt = params_dict.get('Rt',0.0); A2 = params_dict.get('A2',0.0); A3 = params_dict['theta']
     
     monomer_array_i = get_monomer_xyza(monomer_name,0,0,0,A2,A3)
     if a_ > b_:
-        monomer_array_p1 = get_monomer_xyza(monomer_name,0,b_,0,A2,A3)##p1がb方向
+        monomer_array_p1 = get_monomer_xyza(monomer_name,0,b_,2*Rt,A2,A3)##p1がb方向
     else:
         monomer_array_p1 = get_monomer_xyza(monomer_name,a_,0,0,A2,A3)##p2がa方向
-    monomer_array_t1 = get_monomer_xyza(monomer_name,a_/2,b_/2,0,A2,-A3)
-    monomer_array_t2 = get_monomer_xyza(monomer_name,a_/2,-b_/2,0,A2,-A3)
-    monomer_array_t3 = get_monomer_xyza(monomer_name,-a_/2,-b_/2,0,A2,-A3)
-    monomer_array_t4 = get_monomer_xyza(monomer_name,-a_/2,b_/2,0,A2,-A3)
+    monomer_array_t1 = get_monomer_xyza(monomer_name,a_/2,b_/2,Rt,A2,-A3)
+    monomer_array_t2 = get_monomer_xyza(monomer_name,a_/2,-b_/2,-Rt,A2,-A3)
+    monomer_array_t3 = get_monomer_xyza(monomer_name,-a_/2,-b_/2,-Rt,A2,-A3)
+    monomer_array_t4 = get_monomer_xyza(monomer_name,-a_/2,b_/2,Rt,A2,-A3)
     
     
     dimer_array_t1 = np.concatenate([monomer_array_i,monomer_array_t1])
@@ -161,7 +161,7 @@ def get_file_name_from_dict(monomer_name,params_dict):
     file_name = ''
     file_name += monomer_name
     for key,val in params_dict.items():
-        if key in ['a','b','cx','cy','cz','theta']:
+        if key in ['a','b','Rt','cx','cy','cz','theta']:
             val = np.round(val,2)
         elif key in ['A1','A2']:#,'theta']:
             val = int(val)
