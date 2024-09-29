@@ -28,16 +28,16 @@ def main_process(args):
     isOver = False
     while not(isOver):
         #check
-        isOver = listen(args.auto_dir,args.monomer_name,args.num_nodes,args.isTest)##argsの中身を取る
+        isOver = listen(args.auto_dir,args.monomer_name,args.num_nodes,args.num_m2,args.isTest)##argsの中身を取る
         time.sleep(1)
 
-def listen(auto_dir,monomer_name,num_nodes,isTest):##args自体を引数に取るか中身をばらして取るかの違い
+def listen(auto_dir,monomer_name,num_nodes,num_m2,isTest):##args自体を引数に取るか中身をばらして取るかの違い
     auto_csv = os.path.join(auto_dir,'step1.csv')
     df_E = pd.read_csv(auto_csv)
     df_queue = df_E.loc[df_E['status']=='InProgress',['machine_type','file_name']]
     machine_type_list = df_queue['machine_type'].values.tolist()
     len_queue = len(df_queue)
-    maxnum_machine2 = 3#int(num_nodes/2) ##多分俺のために空けていてくださったので2 3にする
+    maxnum_machine2 = num_m2#int(num_nodes/2) ##多分俺のために空けていてくださったので2 3にする
     
     for idx,row in zip(df_queue.index,df_queue.values):
         machine_type,file_name = row
@@ -181,6 +181,7 @@ if __name__ == '__main__':
     parser.add_argument('--auto-dir',type=str,help='path to dir which includes gaussian, gaussview and csv')
     parser.add_argument('--monomer-name',type=str,help='monomer name')
     parser.add_argument('--num-nodes',type=int,help='num nodes')
+    parser.add_argument('--num-m2',type=int,help='num machine2')
     ##maxnum-machine2 がない
     args = parser.parse_args()
 
