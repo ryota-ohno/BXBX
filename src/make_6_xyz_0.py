@@ -111,7 +111,7 @@ def make_xyz(monomer_name,params_dict):
     xyzfile_name = ''
     xyzfile_name += monomer_name
     for key,val in params_dict.items():
-        if key in ['a','b','cx','cy','cz','theta']:
+        if key in ['a','b','Rt','cx','cy','cz','theta']:
             val = np.round(val,2)
         elif key in ['A1','A2']:#,'theta']:
             val = int(val)
