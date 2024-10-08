@@ -4,7 +4,7 @@ import pandas as pd
 import subprocess
 from utils import Rod, R2atom
 
-MONOMER_LIST = ['BOBO','BSeBSe','BOBS','BOBSe','BSBSe']
+MONOMER_LIST = ['BOBO','BSBS','BSeBSe','BOBS','BOBSe','BSBSe']
 ############################汎用関数###########################
 def get_monomer_xyza(monomer_name,Ta,Tb,Tc,A2,A3):
     T_vec = np.array([Ta,Tb,Tc])
@@ -24,10 +24,14 @@ def get_monomer_xyza(monomer_name,Ta,Tb,Tc,A2,A3):
     else:
         raise RuntimeError('invalid monomer_name={}'.format(monomer_name))
         
-def get_xyzR_lines(xyza_array,file_description):
+def get_xyzR_lines(xyza_array,file_description,machine_type):
+    if machine_type==1:
+        mp_num = 40
+    elif machine_type==2:
+        mp_num = 52
     lines = [     
         '%mem=15GB\n',
-        '%nproc=40\n',
+        f'%nproc={mp_num}\n',##ここをmachine2では52にしたい machinetypeを引数にとるだけのこと
         '#P TEST pbepbe/6-311G** EmpiricalDispersion=GD3 counterpoise=2\n',###汎関数や基底関数系は適宜変更する
         '\n',
         file_description+'\n',
@@ -100,8 +104,7 @@ def make_xyzfile(monomer_name,params_dict):
     xyz_list=['400 \n','polyacene9 \n']##4分子のxyzファイルを作成
     monomers_array_4 = np.concatenate([monomer_array_i,monomer_array_p1,monomer_array_p3,monomer_array_p2,monomer_array_p4,monomer_array_t1,monomer_array_t2,monomer_array_t3,monomer_array_t4],axis=0)
     
-    for x,y,z,R in monomers_array_4:
-        atom = R2atom(R)
+    for x,y,z,atom in monomers_array_4:
         line = '{} {} {} {}\n'.format(atom,x,y,z)     
         xyz_list.append(line)
     
@@ -118,7 +121,7 @@ def make_xyz(monomer_name,params_dict):
         xyzfile_name += '_{}={}'.format(key,val)
     return xyzfile_name + '.xyz'
 
-def make_gjf_xyz(auto_dir,monomer_name,params_dict,isInterlayer):
+def make_gjf_xyz(auto_dir,monomer_name,params_dict,isInterlayer,machine_type):
     a_ = params_dict['a']; b_ = params_dict['b']; c = np.array([params_dict.get('cx',0.0),params_dict.get('cy',0.0),params_dict.get('cz',0.0)])
     Rt = params_dict.get('Rt',0.0); A2 = params_dict.get('A2',0.0); A3 = params_dict['theta']
     
@@ -140,11 +143,11 @@ def make_gjf_xyz(auto_dir,monomer_name,params_dict,isInterlayer):
     dimer_array_p1 = np.concatenate([monomer_array_i,monomer_array_p1])
     
     file_description = '{}_A2={}_A3={}'.format(monomer_name,int(A2),round(A3,2))
-    line_list_dimer_p1 = get_xyzR_lines(dimer_array_p1,file_description+'_p1')
-    line_list_dimer_t1 = get_xyzR_lines(dimer_array_t1,file_description+'_t1')
-    line_list_dimer_t2 = get_xyzR_lines(dimer_array_t2,file_description+'_t2')
-    line_list_dimer_t3 = get_xyzR_lines(dimer_array_t3,file_description+'_t3')
-    line_list_dimer_t4 = get_xyzR_lines(dimer_array_t4,file_description+'_t4')
+    line_list_dimer_p1 = get_xyzR_lines(dimer_array_p1,file_description+'_p1',machine_type)
+    line_list_dimer_t1 = get_xyzR_lines(dimer_array_t1,file_description+'_t1',machine_type)
+    line_list_dimer_t2 = get_xyzR_lines(dimer_array_t2,file_description+'_t2',machine_type)
+    line_list_dimer_t3 = get_xyzR_lines(dimer_array_t3,file_description+'_t3',machine_type)
+    line_list_dimer_t4 = get_xyzR_lines(dimer_array_t4,file_description+'_t4',machine_type)
     
     if monomer_name in MONOMER_LIST and not(isInterlayer):##隣接8分子について対称性より3分子でエネルギー計算
         gij_xyz_lines = ['$ RunGauss\n'] + line_list_dimer_t1 + ['\n\n--Link1--\n'] + line_list_dimer_p1 + ['\n\n\n']
@@ -179,7 +182,7 @@ def exec_gjf(auto_dir, monomer_name, params_dict, machine_type,isInterlayer,isTe
     with open(xyz_path,'w') as f:
         f.writelines(xyz_list)
     
-    file_name = make_gjf_xyz(auto_dir, monomer_name, params_dict, isInterlayer)
+    file_name = make_gjf_xyz(auto_dir, monomer_name, params_dict, isInterlayer,machine_type)
     cc_list = get_one_exe(file_name,machine_type)
     sh_filename = os.path.splitext(file_name)[0]+'.r1'
     sh_path = os.path.join(inp_dir,sh_filename)
